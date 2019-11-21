@@ -7,7 +7,7 @@ Vue.use(Router)
 
 const routes = [
     { path: '/', component: Home },
-    { path: '/board', component: Board },
+    { path: '/board/:id', component: Board },
 ];
 
 const router = new Router({
