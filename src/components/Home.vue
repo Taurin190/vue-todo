@@ -14,7 +14,16 @@
                         </p>
                     </div>
                 </div>
-                <button class="btn btn-primary col-3" href="#">
+                <div v-if="createFlag" class="col-3 card">
+                    <label>Title</label>
+                    <input v-model="new_title" type="textbox" />
+                    <label>text</label>
+                    <input v-model="new_description" type="textarea" />
+                    <button v-on:click="createBoard(new_title, new_description)" class="btn btn-primary" href="#">
+                        Create
+                    </button>
+                </div>
+                <button v-else v-on:click="openCreateForm" class="btn btn-primary col-3" href="#">
                     <font-awesome-icon style="height: 100px;" class="align-middle" icon="plus" />
                 </button>
             </div>
@@ -31,12 +40,24 @@ export default {
               {title: 'TESTボード', description: 'これはTESTボードで試しに作ってみました。'},
               {title: 'TESTボード2', description: 'これはTESTボードで試しに作ってみました。'},
               {title: 'TESTボード3', description: 'これはTESTボードで試しに作ってみました。'}
-          ]
+          ],
+          createFlag: false,
+          new_title: '',
+          new_description:'',
+          count: 0,
       }
   },
   methods: {
-      createBoard: function() {
-
+      createBoard: function(title, text) {
+          this.$data.threads.push( 
+              {title: title, description: text}
+          );
+          this.$data.new_title = '';
+          this.$data.new_description = '';
+          this.$data.createFlag = false;
+      },
+      openCreateForm: function() {
+          this.$data.createFlag = true;
       },
       deleteCard: function(index) {
           this.$delete(this.$data.threads, index);
