@@ -4,7 +4,7 @@
         <div>
             <div class="row">
                 <div v-for="(thread, index) in threads" :key="index" class="col-3 card" style="position: relative;">
-                    <span class="col-12 text-right" style="position: absolute; right: -15px">
+                    <span v-on:click="deleteCard(index)" class="col-12 text-right" style="position: absolute; right: -15px">
                         <font-awesome-icon icon="times-circle" />
                     </span>
                     <div class="card-body">
@@ -37,6 +37,9 @@ export default {
   methods: {
       createBoard: function() {
 
+      },
+      deleteCard: function(index) {
+          this.$delete(this.$data.threads, index);
       }
   }
 }
