@@ -4,19 +4,17 @@
         <div style="margin: 30px;">
             <div class="row">
                 <div v-for="(thread, index) in threads" :key="index" class="col-3 card" style="margin-bottom: 10px; position: relative;">
-                    <div class="">
                     <span v-on:click="deleteCard(index)" class="col-12 text-right" style="position: absolute; right: -5px">
                         <font-awesome-icon icon="times-circle" />
                     </span>
-                    <a class="" v-bind:href="'/board/' + index" >
+                    <router-link :to="{ name: 'board', params: { id: index }}" >
                         <div class="card-body">
                             <h5 class="card-title">{{ thread.title }}</h5>
                             <p class="card-text">
                                  {{ thread.description }}
                             </p>
                         </div>
-                    </a>
-                    </div>
+                    </router-link >
                 </div>
                 <div v-if="createFlag" class="col-3 card">
                     <label>Title</label>
