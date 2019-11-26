@@ -11,10 +11,10 @@
                         {{ task.name }}
                     </p>
                 </div>
-                <input v-model="new_column" type="text" @keyup.enter="createTask(new_column)" />
+                <input v-model="new_task[index]" type="text" v-on:keyup.enter="createTask(new_task[index], index)" />
             </div>
             <div class="card col-3">
-                <input v-model="new_task" type="text" class="card-title" @keyup.enter="createColmun(new_task, index)" />
+                <input v-model="new_column" type="text" class="card-title" v-on:keyup.enter="createColmun(new_column)" />
             </div>
         </div>
     </div>
@@ -29,24 +29,28 @@ export default {
       return {
           title: 'TESTボード',
           columns: ['aaa'],
-          new_task: '',
+          new_task: [''],
           new_column: '',
           task_list: [
-              [ 
-                  {name: 'aaaa', status: 1},
-                  {name: 'bbbbbb', status: 1},
+            [
+                {name: 'aaaa', status: 1},
+                {name: 'bbbbbb', status: 1},
             ],
           ],
       }
   },
   methods: {
       createColmun: function(column) {
-          this.task_list.add(column);
+          this.columns.push(column);
           this.new_column = '';
+          this.new_task.push('');
+          this.task_list.push([]);
       },
       createTask: function(task, index) {
-          this.task_list[index].add(task);
-          this.new_task = '';
+          this.task_list[index].push(
+              {name: task, status: 1},
+          );
+          this.new_task[index] = '';
       }
   }
 }
