@@ -6,11 +6,9 @@
                 <h5 class="card-title">
                     {{ column }}
                 </h5>
-                <div v-for="(task, i) in task_list[index]" :key="i" class="">
-                    <p>
-                        {{ task.name }}
-                    </p>
-                </div>
+                <draggable v-model="task_list[index]" group="task" @start="drag=true" @end="drag=false" :options="options">
+                    <div class="item" v-for="task in task_list[index]" :key="task.id">{{task.name}}</div>
+                </draggable>
                 <input v-model="new_task[index]" type="text" v-on:keyup.enter="createTask(new_task[index], index)" />
             </div>
             <div class="card col-3">
@@ -20,21 +18,28 @@
     </div>
 </template>
 <script>
+import draggable from 'vuedraggable';
+
 export default {
   name: 'Board',
+  components: { draggable },
   props: {
     msg: String
   },
   data: function() {
       return {
+          options: {
+              group: 'task',
+              animation: 200
+          },
           title: 'TESTボード',
           columns: ['aaa'],
           new_task: [''],
           new_column: '',
           task_list: [
             [
-                {name: 'aaaa', status: 1},
-                {name: 'bbbbbb', status: 1},
+                {id: 1, name: 'aaaa', status: 1},
+                {id: 2, name: 'bbbbbb', status: 1},
             ],
           ],
       }
