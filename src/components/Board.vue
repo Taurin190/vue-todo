@@ -47,8 +47,8 @@ export default {
           new_column: '',
           task_list: [
             [
-                {id: 1, name: 'aaaa', status: 'doing'},
-                {id: 2, name: 'bbbbbb', status: 'doing'},
+                {name: 'aaaa', status: 'doing'},
+                {name: 'bbbbbb', status: 'doing'},
             ],
           ],
       }
@@ -62,7 +62,7 @@ export default {
       },
       createTask: function(task, index) {
           this.task_list[index].push(
-              {name: task, status: 1},
+              {name: task, status: 'doing'},
           );
           this.new_task[index] = '';
       },
