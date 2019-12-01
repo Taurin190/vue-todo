@@ -27,6 +27,7 @@
     </div>
 </template>
 <script>
+import {firebaseDB} from '../main'
 import draggable from 'vuedraggable';
 
 export default {
@@ -53,12 +54,16 @@ export default {
           ],
       }
   },
+  mounted: function() {
+      this.loadBoardDetail();
+  },
   methods: {
       createColmun: function(column) {
           this.columns.push(column);
           this.new_column = '';
           this.new_task.push('');
           this.task_list.push([]);
+
       },
       createTask: function(task, index) {
           this.task_list[index].push(
@@ -73,6 +78,30 @@ export default {
               this.task_list[column_index][task_index].status = "doing"
           }
       },
+      loadBoardDetail: function(id) {
+          var vm = this;
+          const boardDetail = firebaseDB.collection('boards').doc(id);
+          vm.title = boardDetail.title;
+         
+          boardDetail.columns.get().then( (snap) => {
+              vm.columns = [];
+              if (snap.size == 0) {
+                  return 0;
+              }
+              snap.docs.forEach(function(doc) {
+                  vm.columns.push(doc.data());
+              });
+          });
+          boardDetail.task_list.get().then( (snap) => {
+              vm.task_list = [[]];
+              if (snap.size == 0) {
+                  return 0;
+              }
+              snap.docs.forEach(function(doc) {
+                  vm.task_list.push(doc.data());
+              });
+          });
+      }
   }
 }
 </script>

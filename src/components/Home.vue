@@ -7,7 +7,7 @@
                     <span v-on:click="deleteCard(index)" class="col-12 text-right" style="position: absolute; right: -5px">
                         <font-awesome-icon icon="times-circle" />
                     </span>
-                    <router-link :to="{ name: 'board', params: { id: index }}" >
+                    <router-link :to="{ name: 'board', params: { id: thread.id }}" >
                         <div class="card-body">
                             <h5 class="card-title">{{ thread.title }}</h5>
                             <p class="card-text">
@@ -34,14 +34,13 @@
 </template>
 
 <script>
+import {firebaseDB} from '../main'
+
 export default {
   name: 'Home',
   data: function() {
       return {
           threads: [
-              {title: 'TESTボード', description: 'これはTESTボードで試しに作ってみました。'},
-              {title: 'TESTボード2', description: 'これはTESTボードで試しに作ってみました。'},
-              {title: 'TESTボード3', description: 'これはTESTボードで試しに作ってみました。'}
           ],
           createFlag: false,
           new_title: '',
@@ -49,11 +48,20 @@ export default {
           count: 0,
       }
   },
+  mounted: function() {
+      this.loadBoardList();
+    },
   methods: {
       createBoard: function(title, text) {
           this.$data.threads.push( 
               {title: title, description: text}
           );
+          firebaseDB.collection('boards').add({
+              title: title, 
+              description: text,
+              columns: [],
+              task_list: [],
+          });
           this.$data.new_title = '';
           this.$data.new_description = '';
           this.$data.createFlag = false;
@@ -63,7 +71,24 @@ export default {
       },
       deleteCard: function(index) {
           this.$delete(this.$data.threads, index);
-      }
+          firebaseDB.collection('boards').doc()
+      },
+      loadBoardList: function() {
+          var vm = this;
+          const boards = firebaseDB.collection('boards');
+          boards.get().then( (snap) => {
+              if (snap.size == 0) {
+                  vm.threads = [];
+                  return 0;
+              }
+              snap.docs.forEach(function(doc) {
+                  var data = {id: doc.id};
+                  data = Object.assign(data, doc.data());
+                  vm.threads.push(data);
+              });
+            //   vm.$store.commit('updateBlogList', vm.blogList);
+          });
+      },
   }
 }
 </script>
