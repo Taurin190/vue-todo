@@ -4,7 +4,7 @@
         <div style="margin: 30px;">
             <div class="row">
                 <div v-for="(thread, index) in threads" :key="index" class="col-3 card" style="margin-bottom: 10px; position: relative;">
-                    <span v-on:click="deleteCard(index)" class="col-12 text-right" style="position: absolute; right: -5px">
+                    <span v-on:click="deleteCard(index, thread.id)" class="col-12 text-right" style="position: absolute; right: -5px">
                         <font-awesome-icon icon="times-circle" />
                     </span>
                     <router-link :to="{ name: 'board', params: { id: thread.id }}" >
@@ -50,7 +50,7 @@ export default {
   },
   mounted: function() {
       this.loadBoardList();
-    },
+  },
   methods: {
       createBoard: function(title, text) {
           this.$data.threads.push( 
@@ -69,9 +69,9 @@ export default {
       openCreateForm: function() {
           this.$data.createFlag = true;
       },
-      deleteCard: function(index) {
+      deleteCard: function(index, id) {
           this.$delete(this.$data.threads, index);
-          firebaseDB.collection('boards').doc()
+          firebaseDB.collection('boards').doc(id).delete();
       },
       loadBoardList: function() {
           var vm = this;
@@ -86,7 +86,6 @@ export default {
                   data = Object.assign(data, doc.data());
                   vm.threads.push(data);
               });
-            //   vm.$store.commit('updateBlogList', vm.blogList);
           });
       },
   }
