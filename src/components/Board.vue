@@ -6,8 +6,8 @@
                 <h5 class="card-title">
                     {{ column }}
                 </h5>
-                <draggable v-model="task_list[index]" group="task" @start="drag=true" @end="drag=false" :options="options">
-                    <div class="item card" v-bind:class="task.status" v-for="(task, task_index) in task_list[index]" :key="task_index">
+                <draggable v-model="tmp_task_list[index]" group="task" @start="drag=true" @end="drag=false" :options="options">
+                    <div class="item card" v-bind:class="task.status" v-for="(task, task_index) in tmp_task_list[index]" :key="task_index">
                         {{task.name}}
                         <span 
                             class="col-12 text-right clickable" 
@@ -29,6 +29,7 @@
 <script>
 import {firebaseDB} from '../main'
 import draggable from 'vuedraggable';
+import { log } from 'util';
 
 export default {
   name: 'Board',
@@ -43,7 +44,7 @@ export default {
               animation: 200
           },
           title: 'TESTボード',
-          columns: ['aaa'],
+          columns: [],
           new_task: [''],
           new_column: '',
           task_list: [
@@ -52,55 +53,88 @@ export default {
                 {name: 'bbbbbb', status: 'doing'},
             ],
           ],
+          tmp_task_list: [
+              []
+          ],
       }
   },
   mounted: function() {
-      this.loadBoardDetail();
+      this.loadBoardDetail(this.$route.params.id);
+  },
+  watch: {
+      task_list(tasks) {
+          this.loadTaskList(tasks);
+        //   firebaseDB.collection('boards').doc(this.$route.params.id).set({
+        //       task_list: [{name: 'aaaa', status: 'doing'},tasks]
+        //   }, {merge: true});
+      },
+      tmp_task_list(tasks) {
+          this.task_list = this.getStorableObject(tasks);
+      }
   },
   methods: {
       createColmun: function(column) {
           this.columns.push(column);
+          firebaseDB.collection('boards').doc(this.$route.params.id).set({
+              columns: this.columns
+          }, {merge: true});
           this.new_column = '';
-          this.new_task.push('');
-          this.task_list.push([]);
+          this.tmp_task_list.push([]);
+          this.task_list = this.getStorableObject(this.tmp_task_list);
+        //   this.task_list.push({});
 
       },
+      getStorableObject: function(arr) {
+          let obj = {};
+        //   log(arr);
+          for(let i = 0; i < arr.length; i++) {
+              obj[i] = arr[i];
+          }
+          return obj;
+      },
+      loadTaskList: function(tasks) {
+          var col = firebaseDB.collection('boards').doc(this.$route.params.id);
+        //   var new_task_array = {};
+        //   tasks.forEach(function(task, i) {
+        //       var new_task = [];
+        //       task.forEach(function(t) {
+        //           new_task.push({name: t.name, status: t.status});
+        //         //   new_task_array[i].push({name: t.name, status: t.status});
+        //       });
+        //   });
+          log(this.getStorableObject(tasks));
+          col.set( {task_list: this.task_list}, {merge: true});
+      },
       createTask: function(task, index) {
-          this.task_list[index].push(
+          this.tmp_task_list[index].push(
               {name: task, status: 'doing'},
           );
+        //   this.task_list = this.getStorableObject(this.tmp_task_list);
           this.new_task[index] = '';
       },
       changeTaskStatusDone: function(column_index, task_index) {
-          if (this.task_list[column_index][task_index].status == "doing") {
-              this.task_list[column_index][task_index].status = "done"
+          if (this.tmp_task_list[column_index][task_index].status == "doing") {
+              this.tmp_task_list[column_index][task_index].status = "done"
           } else {
-              this.task_list[column_index][task_index].status = "doing"
+              this.tmp_task_list[column_index][task_index].status = "doing"
           }
       },
       loadBoardDetail: function(id) {
           var vm = this;
           const boardDetail = firebaseDB.collection('boards').doc(id);
-          vm.title = boardDetail.title;
-         
-          boardDetail.columns.get().then( (snap) => {
-              vm.columns = [];
-              if (snap.size == 0) {
+
+          boardDetail.get().then( (snap) => {
+              if (!snap.exists) {
                   return 0;
               }
-              snap.docs.forEach(function(doc) {
-                  vm.columns.push(doc.data());
-              });
+              var boardData = snap.data();
+              vm.title = boardData.title;
+              vm.columns = boardData.columns;
+              vm.tmp_task_list = boardData.task_list;
+            //   vm.task_list.push([]);
+              
           });
-          boardDetail.task_list.get().then( (snap) => {
-              vm.task_list = [[]];
-              if (snap.size == 0) {
-                  return 0;
-              }
-              snap.docs.forEach(function(doc) {
-                  vm.task_list.push(doc.data());
-              });
-          });
+            
       }
   }
 }
