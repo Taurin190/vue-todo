@@ -54,7 +54,10 @@ export default {
             ],
           ],
           tmp_task_list: [
-              []
+              [
+                {name: 'aaaa', status: 'doing'},
+                {name: 'bbbbbb', status: 'doing'},
+              ],
           ],
       }
   },
@@ -63,10 +66,8 @@ export default {
   },
   watch: {
       task_list(tasks) {
-          this.loadTaskList(tasks);
-        //   firebaseDB.collection('boards').doc(this.$route.params.id).set({
-        //       task_list: [{name: 'aaaa', status: 'doing'},tasks]
-        //   }, {merge: true});
+          log(tasks);
+          this.updateTaskList(tasks);
       },
       tmp_task_list(tasks) {
           this.task_list = this.getStorableObject(tasks);
@@ -80,32 +81,33 @@ export default {
           }, {merge: true});
           this.new_column = '';
           this.tmp_task_list.push([]);
-          this.task_list = this.getStorableObject(this.tmp_task_list);
+        //   this.task_list = this.getStorableObject(this.tmp_task_list);
         //   this.task_list.push({});
 
       },
       getStorableObject: function(arr) {
           let obj = {};
-        //   log(arr);
           for(let i = 0; i < arr.length; i++) {
               obj[i] = arr[i];
           }
           return obj;
       },
-      loadTaskList: function(tasks) {
+      getArrayFromObject: function(obj) {
+          let arr = [];
+          for(let i = 0; i < obj.length; i++) {
+              arr[i] = obj[i];
+          }
+          return arr;
+      },
+      updateTaskList: function(tasks) {
           var col = firebaseDB.collection('boards').doc(this.$route.params.id);
-        //   var new_task_array = {};
-        //   tasks.forEach(function(task, i) {
-        //       var new_task = [];
-        //       task.forEach(function(t) {
-        //           new_task.push({name: t.name, status: t.status});
-        //         //   new_task_array[i].push({name: t.name, status: t.status});
-        //       });
-        //   });
           log(this.getStorableObject(tasks));
           col.set( {task_list: this.task_list}, {merge: true});
       },
       createTask: function(task, index) {
+          log(task);
+          log(index);
+          log(this.tmp_task_list);
           this.tmp_task_list[index].push(
               {name: task, status: 'doing'},
           );
@@ -130,9 +132,12 @@ export default {
               var boardData = snap.data();
               vm.title = boardData.title;
               vm.columns = boardData.columns;
-              vm.tmp_task_list = boardData.task_list;
-            //   vm.task_list.push([]);
-              
+              vm.tmp_task_list = this.getArrayFromObject(boardData.task_list);
+              let col_len = vm.columns.length;
+              let list_len = vm.tmp_task_list;
+              for (let i = list_len; i < col_len; i++) {
+                  vm.tmp_task_list.push([]);
+              }
           });
             
       }
