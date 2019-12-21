@@ -66,7 +66,6 @@ export default {
   },
   watch: {
       task_list(tasks) {
-          log(tasks);
           this.updateTaskList(tasks);
       },
       tmp_task_list(tasks) {
@@ -91,24 +90,16 @@ export default {
       },
       getArrayFromObject: function(obj) {
           let arr = [];
-          log("hogehoge");
-          log(Object.keys(obj).length);
           for(let i = 0; i < Object.keys(obj).length; i++) {
-              log(obj[i]);
               arr[i] = obj[i];
-              log(arr[i]);
           }
           return arr;
       },
       updateTaskList: function(tasks) {
           var col = firebaseDB.collection('boards').doc(this.$route.params.id);
-          log(this.getStorableObject(tasks));
           col.set( {task_list: this.task_list}, {merge: true});
       },
       createTask: function(task, index) {
-          log(task);
-          log(index);
-          log(this.tmp_task_list);
           this.tmp_task_list[index].push(
               {name: task, status: 'doing'},
           );
@@ -135,11 +126,6 @@ export default {
               vm.tmp_task_list = this.getArrayFromObject(boardData.task_list);
               let col_len = vm.columns.length;
               let list_len = vm.tmp_task_list.length;
-              log("col_len and list_len");
-              log(col_len);
-              log(boardData.task_list);
-              log(vm.tmp_task_list);
-              log(list_len);
               for (let i = list_len; i < col_len; i++) {
                   vm.tmp_task_list.push([]);
               }
