@@ -81,9 +81,6 @@ export default {
           }, {merge: true});
           this.new_column = '';
           this.tmp_task_list.push([]);
-        //   this.task_list = this.getStorableObject(this.tmp_task_list);
-        //   this.task_list.push({});
-
       },
       getStorableObject: function(arr) {
           let obj = {};
@@ -94,8 +91,12 @@ export default {
       },
       getArrayFromObject: function(obj) {
           let arr = [];
-          for(let i = 0; i < obj.length; i++) {
+          log("hogehoge");
+          log(Object.keys(obj).length);
+          for(let i = 0; i < Object.keys(obj).length; i++) {
+              log(obj[i]);
               arr[i] = obj[i];
+              log(arr[i]);
           }
           return arr;
       },
@@ -111,7 +112,6 @@ export default {
           this.tmp_task_list[index].push(
               {name: task, status: 'doing'},
           );
-        //   this.task_list = this.getStorableObject(this.tmp_task_list);
           this.new_task[index] = '';
       },
       changeTaskStatusDone: function(column_index, task_index) {
@@ -134,7 +134,12 @@ export default {
               vm.columns = boardData.columns;
               vm.tmp_task_list = this.getArrayFromObject(boardData.task_list);
               let col_len = vm.columns.length;
-              let list_len = vm.tmp_task_list;
+              let list_len = vm.tmp_task_list.length;
+              log("col_len and list_len");
+              log(col_len);
+              log(boardData.task_list);
+              log(vm.tmp_task_list);
+              log(list_len);
               for (let i = list_len; i < col_len; i++) {
                   vm.tmp_task_list.push([]);
               }
