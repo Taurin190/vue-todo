@@ -1,10 +1,9 @@
 # vue-todo
+Vue.jsでのTODOアプリのサンプル。
 
-## Project setup
-```
-npm install
-```
+[Qiitaの記事](https://qiita.com/baby-degu/items/f905c8ee972cf46ce11b)にある、プロジェクト1.Trelloクローン。
 
+## Vue Commands
 ### Compiles and hot-reloads for development
 ```
 npm run serve
