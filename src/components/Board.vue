@@ -97,12 +97,13 @@ export default {
       },
       updateTaskList: function(tasks) {
           var col = firebaseDB.collection('boards').doc(this.$route.params.id);
-          col.set( {task_list: this.task_list}, {merge: true});
+          col.set( {task_list: tasks}, {merge: true});
       },
       createTask: function(task, index) {
           this.tmp_task_list[index].push(
               {name: task, status: 'doing'},
           );
+          log("CREATE NEW TASK: " + task);
           this.new_task[index] = '';
       },
       changeTaskStatusDone: function(column_index, task_index) {
