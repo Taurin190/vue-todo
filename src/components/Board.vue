@@ -6,8 +6,8 @@
                 <h5 class="card-title">
                     {{ column }}
                 </h5>
-                <draggable v-model="tmp_task_list[index]" group="task" @start="drag=true" @end="drag=false" :options="options">
-                    <div class="item card" v-bind:class="task.status" v-for="(task, task_index) in tmp_task_list[index]" :key="task_index">
+                <draggable v-model="task_list[index]" group="task" @start="drag=true" @end="drag=false" :options="options">
+                    <div class="item card" v-bind:class="task.status" v-for="(task, task_index) in task_list[index]" :key="task_index">
                         {{task.name}}
                         <span 
                             class="col-12 text-right clickable" 
@@ -47,32 +47,21 @@ export default {
           columns: [],
           new_task: [''],
           new_column: '',
-          tmp_task_list: [],
+          task_list: [],
+          listener: null,
       }
   },
   mounted: function() {
       this.loadBoardDetail(this.$route.params.id);
   },
-//   firestore() {
-//       return {
-//           f_task_list: firebaseDB.collection('tasks').doc(this.$route.params.id)
-//       }
-//   },
   watch: {
-      tmp_task_list: {
+      task_list: {
           handler: function(tasks){
-            log("tmp_task_list was changed");
+            log("task_list was changed");
             this.updateTaskList(tasks);
           },
           deep: true
       },
-    //   f_task_list: {
-    //       handler: function(tasks){
-    //           log("task list from firebase");
-    //           log(tasks);
-    //       },
-    //       deep: true
-    //   },
   },
   methods: {
       createColmun: function(column) {
@@ -81,7 +70,7 @@ export default {
               columns: this.columns
           }, {merge: true});
           this.new_column = '';
-          this.tmp_task_list.push([]);
+          this.task_list.push([]);
       },
       getStorableObject: function(arr) {
           let obj = {};
@@ -103,26 +92,23 @@ export default {
           col.set( tasks, {merge: true});
       },
       createTask: function(task, index) {
-          this.tmp_task_list[index].push(
+          this.task_list[index].push(
               {name: task, status: 'doing'},
           );
           log("CREATE NEW TASK: " + task);
           this.new_task[index] = '';
       },
       changeTaskStatusDone: function(column_index, task_index) {
-          if (this.tmp_task_list[column_index][task_index].status == "doing") {
-              this.tmp_task_list[column_index][task_index].status = "done"
+          if (this.task_list[column_index][task_index].status == "doing") {
+              this.task_list[column_index][task_index].status = "done"
           } else {
-              this.tmp_task_list[column_index][task_index].status = "doing"
+              this.task_list[column_index][task_index].status = "doing"
           }
       },
       loadBoardDetail: function(id) {
           var vm = this;
           const boardDetail = firebaseDB.collection('boards').doc(id);
-          const tasks = firebaseDB.collection('tasks').doc(id);
-          tasks.get().then( (snap) => {
-              vm.tmp_task_list = snap.data();
-          });
+          this.startListener();
 
           boardDetail.get().then( (snap) => {
               if (!snap.exists) {
@@ -132,13 +118,23 @@ export default {
               vm.title = boardData.title;
               vm.columns = boardData.columns;
               let col_len = vm.columns.length;
-              let list_len = vm.tmp_task_list.length;
+              let list_len = vm.task_list.length;
               for (let i = list_len; i < col_len; i++) {
-                  vm.tmp_task_list.push([]);
+                  vm.task_list.push([]);
               }
+          }); 
+      },
+      startListener: function() {
+          if (this.listener) {
+              log("listener was already running");
+              this.listener = null;
+          }
+          var vm = this; 
+          var col = firebaseDB.collection('tasks').doc(this.$route.params.id);
+          this.listener = col.onSnapshot((snap) => {
+              vm.task_list = snap.data();
           });
-            
-      }
+      },
   }
 }
 </script>
