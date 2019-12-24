@@ -70,7 +70,9 @@ export default {
               columns: this.columns
           }, {merge: true});
           this.new_column = '';
-          this.task_list.push([]);
+          var new_col_num = Object.keys(this.task_list).length;
+          this.task_list[new_col_num] = [];
+          this.updateTaskList(this.task_list);
       },
       getStorableObject: function(arr) {
           let obj = {};
