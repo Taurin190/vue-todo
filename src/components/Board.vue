@@ -47,30 +47,32 @@ export default {
           columns: [],
           new_task: [''],
           new_column: '',
-          task_list: [
-            [
-                {name: 'aaaa', status: 'doing'},
-                {name: 'bbbbbb', status: 'doing'},
-            ],
-          ],
-          tmp_task_list: [
-              [
-                {name: 'aaaa', status: 'doing'},
-                {name: 'bbbbbb', status: 'doing'},
-              ],
-          ],
+          tmp_task_list: [],
       }
   },
   mounted: function() {
       this.loadBoardDetail(this.$route.params.id);
   },
+//   firestore() {
+//       return {
+//           f_task_list: firebaseDB.collection('tasks').doc(this.$route.params.id)
+//       }
+//   },
   watch: {
-      task_list(tasks) {
-          this.updateTaskList(tasks);
+      tmp_task_list: {
+          handler: function(tasks){
+            log("tmp_task_list was changed");
+            this.updateTaskList(tasks);
+          },
+          deep: true
       },
-      tmp_task_list(tasks) {
-          this.task_list = this.getStorableObject(tasks);
-      }
+    //   f_task_list: {
+    //       handler: function(tasks){
+    //           log("task list from firebase");
+    //           log(tasks);
+    //       },
+    //       deep: true
+    //   },
   },
   methods: {
       createColmun: function(column) {
@@ -96,8 +98,9 @@ export default {
           return arr;
       },
       updateTaskList: function(tasks) {
-          var col = firebaseDB.collection('boards').doc(this.$route.params.id);
-          col.set( {task_list: tasks}, {merge: true});
+          var col = firebaseDB.collection('tasks').doc(this.$route.params.id);
+          log(tasks)
+          col.set( tasks, {merge: true});
       },
       createTask: function(task, index) {
           this.tmp_task_list[index].push(
@@ -116,6 +119,10 @@ export default {
       loadBoardDetail: function(id) {
           var vm = this;
           const boardDetail = firebaseDB.collection('boards').doc(id);
+          const tasks = firebaseDB.collection('tasks').doc(id);
+          tasks.get().then( (snap) => {
+              vm.tmp_task_list = snap.data();
+          });
 
           boardDetail.get().then( (snap) => {
               if (!snap.exists) {
@@ -124,7 +131,6 @@ export default {
               var boardData = snap.data();
               vm.title = boardData.title;
               vm.columns = boardData.columns;
-              vm.tmp_task_list = this.getArrayFromObject(boardData.task_list);
               let col_len = vm.columns.length;
               let list_len = vm.tmp_task_list.length;
               for (let i = list_len; i < col_len; i++) {
