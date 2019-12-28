@@ -74,20 +74,6 @@ export default {
           this.task_list[new_col_num] = [];
           this.updateTaskList(this.task_list);
       },
-      getStorableObject: function(arr) {
-          let obj = {};
-          for(let i = 0; i < arr.length; i++) {
-              obj[i] = arr[i];
-          }
-          return obj;
-      },
-      getArrayFromObject: function(obj) {
-          let arr = [];
-          for(let i = 0; i < Object.keys(obj).length; i++) {
-              arr[i] = obj[i];
-          }
-          return arr;
-      },
       updateTaskList: function(tasks) {
           var col = firebaseDB.collection('tasks').doc(this.$route.params.id);
           log(tasks)
