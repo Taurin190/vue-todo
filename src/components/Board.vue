@@ -48,11 +48,12 @@ export default {
           new_task: [''],
           new_column: '',
           task_list: [],
-          listener: null,
+          taskListener: null,
+          boardListener: null,
       }
   },
   mounted: function() {
-      this.loadBoardDetail(this.$route.params.id);
+      this.loadBoardDetail();
   },
   watch: {
       task_list: {
@@ -93,33 +94,35 @@ export default {
               this.task_list[column_index][task_index].status = "doing"
           }
       },
-      loadBoardDetail: function(id) {
-          var vm = this;
-          const boardDetail = firebaseDB.collection('boards').doc(id);
-          this.startListener();
-
-          boardDetail.get().then( (snap) => {
-              if (!snap.exists) {
-                  return 0;
-              }
-              var boardData = snap.data();
-              vm.title = boardData.title;
-              vm.columns = boardData.columns;
+      loadBoardDetail: function() {
+          this.startTaskListener();
+          this.startBoardListener();  
+      },
+      startBoardListener: function() {
+          if (this.boardListener) {
+              this.boardListener = null;
+          }
+          var vm = this; 
+          var col = firebaseDB.collection('boards').doc(this.$route.params.id);
+          this.boardListener = col.onSnapshot((snap) => {
+              var boardDetail = snap.data();
+              vm.title = boardDetail.title;
+              vm.columns = boardDetail.columns;
               let col_len = vm.columns.length;
               let list_len = vm.task_list.length;
               for (let i = list_len; i < col_len; i++) {
                   vm.task_list.push([]);
               }
-          }); 
+          });
       },
-      startListener: function() {
-          if (this.listener) {
+      startTaskListener: function() {
+          if (this.taskListener) {
               log("listener was already running");
-              this.listener = null;
+              this.taskListener = null;
           }
           var vm = this; 
           var col = firebaseDB.collection('tasks').doc(this.$route.params.id);
-          this.listener = col.onSnapshot((snap) => {
+          this.taskListener = col.onSnapshot((snap) => {
               vm.task_list = snap.data();
           });
       },
