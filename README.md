@@ -1,8 +1,11 @@
 # vue-todo
-Vue.jsでのTODOアプリのサンプル。
-
 [Qiitaの記事](https://qiita.com/baby-degu/items/f905c8ee972cf46ce11b)にある、プロジェクト1.Trelloクローン。
+クライアントサイドはVue.jsで、サーバーサイドはfirebaseで作成。
 
+ドラッグ&ドロップを出来るカードの部分は、[vuedraggable](https://www.npmjs.com/package/vuedraggable)を使用。
+
+## Demo
+- TODO : gyazoで動画作成してリンクを貼る。
 ## Vue Commands
 ### Compiles and hot-reloads for development
 ```
