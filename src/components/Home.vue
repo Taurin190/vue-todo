@@ -46,10 +46,11 @@ export default {
           new_title: '',
           new_description:'',
           count: 0,
+          listener: null,
       }
   },
   mounted: function() {
-      this.loadBoardList();
+      this.startBoardListener();
   },
   methods: {
       createBoard: function(title, text) {
@@ -73,14 +74,18 @@ export default {
           this.$delete(this.$data.threads, index);
           firebaseDB.collection('boards').doc(id).delete();
       },
-      loadBoardList: function() {
+      startBoardListener: function() {
+          if (this.listener) {
+              this.listener = null;
+          }
           var vm = this;
           const boards = firebaseDB.collection('boards');
-          boards.get().then( (snap) => {
+          this.listener = boards.onSnapshot((snap) => {
               if (snap.size == 0) {
                   vm.threads = [];
                   return 0;
               }
+              vm.threads = [];
               snap.docs.forEach(function(doc) {
                   var data = {id: doc.id};
                   data = Object.assign(data, doc.data());
